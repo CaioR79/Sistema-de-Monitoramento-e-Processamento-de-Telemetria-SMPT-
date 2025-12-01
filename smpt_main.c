@@ -1,11 +1,4 @@
-/*
- * =========================================================================
- * Projeto: Sistema de Monitoramento e Processamento de Telemetria (SMPT)
- * Disciplina: Sistemas Eletrônicos em Tempo Real
- * =========================================================================
- */
-
-// Define _DEFAULT_SOURCE no topo para habilitar usleep sem avisos
+// Define _DE, topo para habilitar usleep sem avisos
 #define _DEFAULT_SOURCE
 
 #include <pthread.h>
@@ -18,25 +11,19 @@
 #include <string.h>
 #include <sys/stat.h> // Necessário para flags de modo (0666)
 
-// -------------------------------------------------------------------------
 // Configurações Globais
-// -------------------------------------------------------------------------
 #define QUEUE_NAME    "/smpt_queue"
 #define MAX_MSG        10         // Capacidade da fila
 #define MSG_SIZE       sizeof(int) // Tamanho da mensagem (apenas um inteiro)
 #define NUM_CONSUMERS  3          // Número de threads consumidoras
 #define TOTAL_MESSAGES 100        // Total de mensagens a serem enviadas
 
-// -------------------------------------------------------------------------
 // Variáveis Globais de Sincronização e Comunicação
-// -------------------------------------------------------------------------
 mqd_t queue_desc;                   // Descritor da Fila de Mensagens POSIX
 pthread_mutex_t counter_mutex;      // Mutex para exclusão mútua do contador
 long long processed_count = 0;      // Contador global (Seção Crítica)
 
-// -------------------------------------------------------------------------
 // Threads Consumidoras
-// -------------------------------------------------------------------------
 void* consumer_thread(void* arg) {
     long id = (long)arg;
     int msg_data;
@@ -53,9 +40,7 @@ void* consumer_thread(void* arg) {
         // Simulação de processamento (Seção NÃO-Crítica)
         usleep(10000 + (rand() % 5000)); // 10ms - 15ms
 
-        // --------------------------------------------------
         // SINCRONIZAÇÃO: Seção Crítica (Acesso ao contador)
-        // --------------------------------------------------
         pthread_mutex_lock(&counter_mutex);
         
         processed_count++;  // Incremento do dado compartilhado
@@ -75,9 +60,7 @@ void* consumer_thread(void* arg) {
     pthread_exit(NULL);
 }
 
-// -------------------------------------------------------------------------
 // Processo Principal (Produtor)
-// -------------------------------------------------------------------------
 int main(void) {
     
     // 1. Inicializar Sincronização
